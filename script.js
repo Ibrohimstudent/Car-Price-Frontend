@@ -1,5 +1,5 @@
 // Backend manzili — deploy qilgandan keyin shu yerni Render havolasiga almashtiring
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://car-price-backend-f4jp.onrender.com";
 
 // --- Har bir feature uchun o'zbekcha nom va qisqa tushuntirish ---
 const FIELD_INFO = {
