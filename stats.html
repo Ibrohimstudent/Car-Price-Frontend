@@ -35,39 +35,85 @@
 </main>
 <script>
 const API_URL = "https://car-price-backend-f4jp.onrender.com";
-
 async function loadStats() {
-  const res = await fetch(`${API_URL}/stats`);
-  const stats = await res.json();
+  try {
+    const res = await fetch(`${API_URL}/stats`);
 
-  // Jadval
-  const table = document.getElementById("comparison-table");
-  table.innerHTML = `
-    <tr><th>Model</th><th>RMSE</th><th>R²</th><th>Vaqt (s)</th></tr>
-    ${stats.model_comparison.map(m => `
-      <tr><td>${m.model}</td><td>${m.rmse}</td><td>${m.r2}</td><td>${m.time}</td></tr>
-    `).join("")}
-  `;
+    console.log("Status:", res.status);
 
-  // RMSE grafik
-  new Chart(document.getElementById("rmseChart"), {
-    type: "bar",
-    data: {
-      labels: stats.model_comparison.map(m => m.model),
-      datasets: [{ label: "RMSE", data: stats.model_comparison.map(m => m.rmse), backgroundColor: "#38bdf8" }],
-    },
-    options: { plugins: { legend: { display: false } } },
-  });
+    if (!res.ok) {
+      throw new Error(`Stats API error: ${res.status}`);
+    }
 
-  // Feature importance grafik
-  new Chart(document.getElementById("importanceChart"), {
-    type: "bar",
-    data: {
-      labels: stats.feature_importance.map(f => f.feature),
-      datasets: [{ label: "Importance", data: stats.feature_importance.map(f => f.importance), backgroundColor: "#22c55e" }],
-    },
-    options: { indexAxis: "y", plugins: { legend: { display: false } } },
-  });
+    const stats = await res.json();
+
+    console.log("Stats data:", stats);
+
+    // Jadval
+    const table = document.getElementById("comparison-table");
+
+    table.innerHTML = `
+      <tr>
+        <th>Model</th>
+        <th>RMSE</th>
+        <th>R²</th>
+        <th>Vaqt (s)</th>
+      </tr>
+
+      ${stats.model_comparison.map(m => `
+        <tr>
+          <td>${m.model}</td>
+          <td>${m.rmse}</td>
+          <td>${m.r2}</td>
+          <td>${m.time}</td>
+        </tr>
+      `).join("")}
+    `;
+
+    // RMSE grafik
+    new Chart(document.getElementById("rmseChart"), {
+      type: "bar",
+      data: {
+        labels: stats.model_comparison.map(m => m.model),
+        datasets: [{
+          label: "RMSE",
+          data: stats.model_comparison.map(m => m.rmse),
+          backgroundColor: "#38bdf8"
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+    // Feature importance
+    new Chart(document.getElementById("importanceChart"), {
+      type: "bar",
+      data: {
+        labels: stats.feature_importance.map(f => f.feature),
+        datasets: [{
+          label: "Importance",
+          data: stats.feature_importance.map(f => f.importance),
+          backgroundColor: "#22c55e"
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Stats error:", error);
+  }
 }
 
 loadStats();
